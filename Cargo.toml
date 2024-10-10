@@ -1,0 +1,10 @@
+[package]
+name = "ADSnitch"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+chrono = "0.4.38"
+evtx = "0.8.3"
+lazy-regex = "3.3.0"
+regex = "1.11.0"
