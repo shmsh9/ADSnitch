@@ -1,24 +1,33 @@
-use chrono::{DateTime, Utc};
 use evtx::EvtxParser;
+use lettre::{Message, SmtpTransport, Transport};
+use lettre::message::header::ContentType;
 use std::{collections::HashMap, path::PathBuf};
 use lazy_regex::{Lazy, regex};
 mod krb;
 mod ntlm;
+mod config;
 mod auth_event;
 use auth_event::AuthEvent;
 
 static RE_EVENTID : &Lazy<regex::Regex> = regex!("<EventID>([0-9]{4})<\\/EventID>");
 
 fn main() {
-    let mut last_date = DateTime::<Utc>::from_timestamp(0, 0).unwrap();
+    let mut last_date = chrono::offset::Utc::now();
+    let fp: PathBuf = PathBuf::from(std::env::args().nth(1).unwrap());
+
     loop {
-        let mut surveillance = HashMap::from([
-            ("t0_vcarbonari", false),
-            ("t0_damides", false),
-            ("Administrator", false)
-        ]);
-        let fp: PathBuf = PathBuf::from(std::env::args().nth(1).unwrap());
-        let mut parser = EvtxParser::from_path(fp).unwrap();
+        let config = config::Config::new().unwrap();
+
+        let mut surveillance : HashMap<String, bool> = config.login_send_alert
+            .iter()
+            .map(|e| (e.to_lowercase(), false))
+            .collect();
+
+        let mut surveillance_fail : HashMap<String, bool> = config.failed_login_send_alert
+            .iter()
+            .map(|e| (e.to_lowercase(), false))
+            .collect();
+        let mut parser = EvtxParser::from_path(fp.clone()).unwrap();
         for record in parser.records() {
             match record {
                 Ok(r) => {
@@ -64,14 +73,42 @@ fn main() {
                             //if !["NTLMV1","NTLMV2","Kerberos","LDAP", "Negotiate", ""].contains(&a.auth_type.as_str()){
                                 //println!("{:?}", a);
                             //}
-                            for k in surveillance.clone().keys(){                                
-                                if !surveillance.get(k).unwrap(){
-                                    if a.target_user_name.to_lowercase().contains(k){
-                                        println!("{:?}", a);
-                                        surveillance.insert(k, true);
-                                    }
+                            if surveillance.get(&a.target_user_name.to_lowercase()).is_some() && !surveillance.get(&a.target_user_name.to_lowercase()).unwrap() {
+                                println!("{:?}", a);
+                                surveillance.insert(a.target_user_name.to_lowercase(), true);
+                                for address in config.send_list.clone().into_iter() {
+                                    let email: Message = Message::builder()
+                                    .from("ADSnitch <ADSnitch@mmt-b.com>".parse().unwrap())
+                                    .to(format!("<{}>", address).parse().unwrap())
+                                    .subject(format!("ADSnitch user connection {}", a.target_user_name))
+                                    .header(ContentType::TEXT_PLAIN)
+                                    .body(format!("user {} connected {:?}", a.target_user_name, a))
+                                    .unwrap();
+                                    let mailer = SmtpTransport::builder_dangerous(config.smtp_server.clone())
+                                        .build();
+                                    mailer.send(&email).unwrap();
                                 }
+
                             }
+                            if surveillance_fail.get(&a.target_user_name.to_lowercase()).is_some() && !a.successfull && !surveillance_fail.get(&a.target_user_name.to_lowercase()).unwrap(){
+                                println!("{:?}", a);
+                                surveillance_fail.insert(a.target_user_name.to_lowercase(), true);
+                                for address in config.send_list.clone().into_iter() {
+                                    let email: Message = Message::builder()
+                                    .from("ADSnitch <ADSnitch@mmt-b.com>".parse().unwrap())
+                                    .to(format!("<{}>", address).parse().unwrap())
+                                    .subject(format!("ADSnitch failed user connection {}", a.target_user_name))
+                                    .header(ContentType::TEXT_PLAIN)
+                                    .body(format!("user {} failed to connect {:?}", a.target_user_name, a))
+                                    .unwrap();
+                                    let mailer = SmtpTransport::builder_dangerous(config.smtp_server.clone())
+                                        .build();
+                                    mailer.send(&email).unwrap();
+                                }
+
+
+                            }
+        
                         },
                         None => {
                         }

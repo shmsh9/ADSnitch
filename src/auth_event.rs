@@ -109,21 +109,25 @@ impl AuthEvent {
                     target_user_name: cap.get(1)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     target_domain_name: cap.get(2)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     service_name: "".to_string(),
                     ip_address: cap.get(8)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     datetime: event.timestamp,
                     auth_type: "".to_string(),
                     workstation_name: cap.get(4)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     status: "".to_string(),
                     successfull: true
@@ -150,18 +154,22 @@ impl AuthEvent {
                     target_user_name: cap.get(1)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     target_domain_name: cap.get(2)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     service_name: cap.get(7)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     ip_address: cap.get(15)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     datetime: event.timestamp,
                     auth_type: match lm {
@@ -172,17 +180,19 @@ impl AuthEvent {
                             let t = cap.get(8).unwrap().as_str();
                             match t {
                                 "MICROSOFT_AUTHENTICATION_PACKAGE_V1_0" => "LDAP".to_string(),
-                                _ => t.to_string()
+                                _ => t.trim().to_string()
                             }
                         }
                     },
                     workstation_name: cap.get(9)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     status: cap.get(3)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     successfull: false
                 })        
@@ -206,18 +216,22 @@ impl AuthEvent {
                     target_user_name: cap.get(1)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     target_domain_name: cap.get(2)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     service_name: cap.get(5)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     ip_address: cap.get(14)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     datetime: event.timestamp,
                     auth_type: match lm {
@@ -228,13 +242,14 @@ impl AuthEvent {
                             let t = cap.get(6).unwrap().as_str();
                             match t {
                                 "MICROSOFT_AUTHENTICATION_PACKAGE_V1_0" => "LDAP".to_string(),
-                                _ => t.to_string()
+                                _ => t.trim().to_string()
                             }
                         }
                     },
                     workstation_name: cap.get(7)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     status: "".to_string(),
                     successfull: true

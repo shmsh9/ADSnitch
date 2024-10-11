@@ -44,15 +44,18 @@ impl KRBT{
                     target_user_name: cap.get(1)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     target_domain_name: "".to_string(),
                     service_name: cap.get(3)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     ip_address: cap.get(7)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     workstation_name: "".to_string(),
                     datetime: event.timestamp,
@@ -60,6 +63,7 @@ impl KRBT{
                     status: cap.get(5)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     successfull: false
                 })
@@ -83,23 +87,27 @@ impl KRBT{
                     target_user_name: cap.get(1)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     target_domain_name: cap.get(2)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     service_name: cap.get(4)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     ip_address: cap.get(10)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     workstation_name: "".to_string(),
                     datetime: event.timestamp,
                     auth_type: "Kerberos".to_string(),
-                    status: s.clone(),
+                    status: s.trim().to_string(),
                     successfull: match s.as_str() {
                         "0x0" => true,
                         _ => false

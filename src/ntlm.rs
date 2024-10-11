@@ -26,12 +26,14 @@ impl NTMLAuth{
                     target_user_name: cap.get(2)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     target_domain_name: "".to_string(),
                     service_name: "".to_string(),
                     ip_address: cap.get(3)
                         .unwrap()
                         .as_str()
+                        .trim()
                         .to_string(),
                     datetime: event.timestamp,
                     auth_type: match pkgname {
