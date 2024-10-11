@@ -8,13 +8,15 @@ mod krb;
 mod ntlm;
 mod config;
 mod auth_event;
+mod database;
 
 static RE_EVENTID : &Lazy<regex::Regex> = regex!("<EventID>([0-9]{4})<\\/EventID>");
 #[tokio::main]
 async fn main() {
     let mut last_date = chrono::offset::Utc::now();
     let fp: PathBuf = PathBuf::from(std::env::args().nth(1).unwrap());
-
+    let config = config::Config::new().unwrap();
+    let db = database::DataBase::new(config).await.unwrap();
     loop {
         let config = config::Config::new().unwrap();
 
@@ -73,6 +75,7 @@ async fn main() {
                             //if !["NTLMV1","NTLMV2","Kerberos","LDAP", "Negotiate", ""].contains(&a.auth_type.as_str()){
                                 //println!("{:?}", a);
                             //}
+                            db.send_auth_event(a.clone()).await.unwrap();
                             if surveillance.get(&a.target_user_name.to_lowercase()).is_some() && !surveillance.get(&a.target_user_name.to_lowercase()).unwrap() {
                                 println!("{:?}", a);
                                 surveillance.insert(a.target_user_name.to_lowercase(), true);

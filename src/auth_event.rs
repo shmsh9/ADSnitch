@@ -80,7 +80,7 @@ static RE_AUTH_EXPLICIT : Lazy<Regex> = Lazy::new(|| {
     )).unwrap()
 });
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AuthEvent{
     pub target_user_name : String,
     pub workstation_name : String,
@@ -261,5 +261,8 @@ impl AuthEvent {
             }
             
         }
+    }
+    pub fn sql_insert(&self) -> &str {
+        "INSERT INTO auth_event(target_user_name, workstation_name, target_domain_name, service_name, ip_address, datetime, auth_type, status, successfull) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)"
     }
 }
