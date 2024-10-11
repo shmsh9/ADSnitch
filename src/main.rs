@@ -1,17 +1,17 @@
 use evtx::EvtxParser;
-use lettre::{Message, SmtpTransport, Transport};
+use lettre::{AsyncSmtpTransport, AsyncTransport, Message, Tokio1Executor};
 use lettre::message::header::ContentType;
 use std::{collections::HashMap, path::PathBuf};
 use lazy_regex::{Lazy, regex};
+use auth_event::AuthEvent;
 mod krb;
 mod ntlm;
 mod config;
 mod auth_event;
-use auth_event::AuthEvent;
 
 static RE_EVENTID : &Lazy<regex::Regex> = regex!("<EventID>([0-9]{4})<\\/EventID>");
-
-fn main() {
+#[tokio::main]
+async fn main() {
     let mut last_date = chrono::offset::Utc::now();
     let fp: PathBuf = PathBuf::from(std::env::args().nth(1).unwrap());
 
@@ -84,9 +84,9 @@ fn main() {
                                     .header(ContentType::TEXT_PLAIN)
                                     .body(format!("user {} connected {:?}", a.target_user_name, a))
                                     .unwrap();
-                                    let mailer = SmtpTransport::builder_dangerous(config.smtp_server.clone())
+                                    let mailer = AsyncSmtpTransport::<Tokio1Executor>::builder_dangerous(config.smtp_server.clone())
                                         .build();
-                                    mailer.send(&email).unwrap();
+                                    mailer.send(email).await.unwrap();
                                 }
 
                             }
@@ -101,9 +101,9 @@ fn main() {
                                     .header(ContentType::TEXT_PLAIN)
                                     .body(format!("user {} failed to connect {:?}", a.target_user_name, a))
                                     .unwrap();
-                                    let mailer = SmtpTransport::builder_dangerous(config.smtp_server.clone())
+                                    let mailer = AsyncSmtpTransport::<Tokio1Executor>::builder_dangerous(config.smtp_server.clone())
                                         .build();
-                                    mailer.send(&email).unwrap();
+                                    mailer.send(email).await.unwrap();
                                 }
 
 
