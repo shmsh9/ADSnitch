@@ -104,7 +104,31 @@ impl AuthEvent {
     pub fn from_auth_explicit_evtx_record(event : SerializedEvtxRecord<String>) -> Option<AuthEvent>{
         let cap = RE_AUTH_EXPLICIT.captures(&event.data);
         match cap {
-            Some(cap) => {                
+            Some(cap) => {
+                let ip: String = cap.get(8)
+                    .unwrap()
+                    .as_str()
+                    .trim()
+                    .to_string();
+
+                let mut workstation_name = cap.get(4)
+                    .unwrap()
+                    .as_str()
+                    .trim()
+                    .to_string();
+                if workstation_name == "-" {
+                    let ip_clean  = ip.replace("::ffff:", "").parse();
+                    workstation_name = match ip_clean {
+                        Ok(i) => {
+                            match dns_lookup::lookup_addr(&i){
+                                Ok(i) => i,
+                                _ => "".to_string()
+                            }
+                        },
+                        _ => "".to_string()
+                    };
+                }
+                
                 Some(AuthEvent{
                     target_user_name: cap.get(1)
                         .unwrap()
@@ -117,18 +141,10 @@ impl AuthEvent {
                         .trim()
                         .to_string(),
                     service_name: "".to_string(),
-                    ip_address: cap.get(8)
-                        .unwrap()
-                        .as_str()
-                        .trim()
-                        .to_string(),
+                    ip_address: ip,
                     datetime: event.timestamp,
                     auth_type: "".to_string(),
-                    workstation_name: cap.get(4)
-                        .unwrap()
-                        .as_str()
-                        .trim()
-                        .to_string(),
+                    workstation_name: workstation_name,
                     status: "".to_string(),
                     successfull: true
                 })
@@ -146,9 +162,32 @@ impl AuthEvent {
         let cap = RE_AUTH_FAIL.captures(&event.data);
         match cap {
             Some(cap) => {
-                let lm = cap.get(11)
+                let lm: &str = cap.get(11)
                     .unwrap()
                     .as_str();
+                let ip: String = cap.get(15)
+                    .unwrap()
+                    .as_str()
+                    .trim()
+                    .to_string();
+
+                let mut workstation_name = cap.get(9)
+                    .unwrap()
+                    .as_str()
+                    .trim()
+                    .to_string();
+                if workstation_name == "-" {
+                    let ip_clean  = ip.replace("::ffff:", "").parse();
+                    workstation_name = match ip_clean {
+                        Ok(i) => {
+                            match dns_lookup::lookup_addr(&i){
+                                Ok(i) => i,
+                                _ => "".to_string()
+                            }
+                        },
+                        _ => "".to_string()
+                    };
+                }
 
                 Some(AuthEvent{
                     target_user_name: cap.get(1)
@@ -166,11 +205,7 @@ impl AuthEvent {
                         .as_str()
                         .trim()
                         .to_string(),
-                    ip_address: cap.get(15)
-                        .unwrap()
-                        .as_str()
-                        .trim()
-                        .to_string(),
+                    ip_address: ip,
                     datetime: event.timestamp,
                     auth_type: match lm {
                         "NTLM V2" => "NTLMV2".to_string(),
@@ -184,11 +219,7 @@ impl AuthEvent {
                             }
                         }
                     },
-                    workstation_name: cap.get(9)
-                        .unwrap()
-                        .as_str()
-                        .trim()
-                        .to_string(),
+                    workstation_name: workstation_name,
                     status: cap.get(3)
                         .unwrap()
                         .as_str()
@@ -211,6 +242,29 @@ impl AuthEvent {
                 let lm = cap.get(10)
                     .unwrap()
                     .as_str();
+                let ip: String = cap.get(14)
+                    .unwrap()
+                    .as_str()
+                    .trim()
+                    .to_string();
+
+                let mut workstation_name = cap.get(7)
+                    .unwrap()
+                    .as_str()
+                    .trim()
+                    .to_string();
+                if workstation_name == "-" {
+                    let ip_clean  = ip.replace("::ffff:", "").parse();
+                    workstation_name = match ip_clean {
+                        Ok(i) => {
+                            match dns_lookup::lookup_addr(&i){
+                                Ok(i) => i,
+                                _ => "".to_string()
+                            }
+                        },
+                        _ => "".to_string()
+                    };
+                }
 
                 Some(AuthEvent {
                     target_user_name: cap.get(1)
@@ -228,11 +282,7 @@ impl AuthEvent {
                         .as_str()
                         .trim()
                         .to_string(),
-                    ip_address: cap.get(14)
-                        .unwrap()
-                        .as_str()
-                        .trim()
-                        .to_string(),
+                    ip_address: ip,
                     datetime: event.timestamp,
                     auth_type: match lm {
                         "NTLM V2" => "NTLMV2".to_string(),
@@ -246,11 +296,7 @@ impl AuthEvent {
                             }
                         }
                     },
-                    workstation_name: cap.get(7)
-                        .unwrap()
-                        .as_str()
-                        .trim()
-                        .to_string(),
+                    workstation_name: workstation_name,
                     status: "".to_string(),
                     successfull: true
                 })        

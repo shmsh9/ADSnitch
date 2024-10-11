@@ -40,6 +40,23 @@ impl KRBT{
         let cap = RE_KRB_PREAUTH_FAIL.captures(&event.data);
         match cap {
             Some(cap) => {
+                let ip: String = cap.get(7)
+                    .unwrap()
+                    .as_str()
+                    .trim()
+                    .to_string();
+
+                let ip_clean = ip.replace("::ffff:", "").parse();
+                let workstation_name = match ip_clean {
+                    Ok(i) => {
+                        match dns_lookup::lookup_addr(&i){
+                            Ok(i) => i,
+                            _ => "".to_string()
+                        }
+                    },
+                    _ => "".to_string()
+                };
+
                 Some(AuthEvent {
                     target_user_name: cap.get(1)
                         .unwrap()
@@ -52,12 +69,8 @@ impl KRBT{
                         .as_str()
                         .trim()
                         .to_string(),
-                    ip_address: cap.get(7)
-                        .unwrap()
-                        .as_str()
-                        .trim()
-                        .to_string(),
-                    workstation_name: "".to_string(),
+                    ip_address: ip,
+                    workstation_name: workstation_name,
                     datetime: event.timestamp,
                     auth_type: "Kerberos".to_string(),
                     status: cap.get(5)
@@ -79,6 +92,21 @@ impl KRBT{
         let cap = RE_KRB_TICKET_REQUEST.captures(&event.data);
         match cap {
             Some(cap) => {
+                let ip: String = cap.get(10)
+                    .unwrap()
+                    .as_str()
+                    .trim()
+                    .to_string();
+                let ip_clean = ip.replace("::ffff:", "").parse();
+                let workstation_name = match ip_clean {
+                    Ok(i) => {
+                        match dns_lookup::lookup_addr(&i){
+                            Ok(i) => i,
+                            _ => "".to_string()
+                        }
+                    },
+                    _ => "".to_string()
+                };
                 let s = cap.get(7)
                     .unwrap()
                     .as_str()
@@ -99,12 +127,8 @@ impl KRBT{
                         .as_str()
                         .trim()
                         .to_string(),
-                    ip_address: cap.get(10)
-                        .unwrap()
-                        .as_str()
-                        .trim()
-                        .to_string(),
-                    workstation_name: "".to_string(),
+                    ip_address: ip,
+                    workstation_name: workstation_name,
                     datetime: event.timestamp,
                     auth_type: "Kerberos".to_string(),
                     status: s.trim().to_string(),
