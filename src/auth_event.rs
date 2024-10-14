@@ -188,6 +188,10 @@ impl AuthEvent {
                         _ => "".to_string()
                     };
                 }
+                let status = cap.get(3)
+                    .unwrap()
+                    .as_str()
+                    .trim();
 
                 Some(AuthEvent{
                     target_user_name: cap.get(1)
@@ -220,12 +224,11 @@ impl AuthEvent {
                         }
                     },
                     workstation_name: workstation_name,
-                    status: cap.get(3)
-                        .unwrap()
-                        .as_str()
-                        .trim()
-                        .to_string(),
-                    successfull: false
+                    status: status.to_string(),
+                    successfull: match status {
+                        "0xC000006E" => true,
+                        _ => false
+                    }
                 })        
             },
             None => {
