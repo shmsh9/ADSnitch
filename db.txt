@@ -1,0 +1,11 @@
+CREATE TABLE auth_event (
+    target_user_name VARCHAR NOT NULL,
+    workstation_name VARCHAR NOT NULL,
+    target_domain_name VARCHAR NOT NULL,
+    service_name VARCHAR NOT NULL,
+    ip_address VARCHAR NOT NULL,
+    datetime BIGINT NOT NULL,
+    auth_type VARCHAR NOT NULL,
+    status VARCHAR NOT NULL,
+    successfull BOOLEAN NOT NULL
+);
