@@ -226,7 +226,7 @@ impl AuthEvent {
                     workstation_name: workstation_name,
                     status: status.to_string(),
                     successfull: match status.to_lowercase().as_str() {
-                        "0xC000006e" => true,
+                        "0xc000006e" => true,
                         _ => false
                     }
                 })        
