@@ -11,10 +11,16 @@ mod auth_event;
 mod database;
 
 static RE_EVENTID : &Lazy<regex::Regex> = regex!("<EventID>([0-9]{4})<\\/EventID>");
+static DEFAULT_PATH : &str = r#"C:\Windows\system32\winevt\Logs\Security.evtx"#;
+
 #[tokio::main]
 async fn main() {
     let mut last_date = chrono::offset::Utc::now();
-    let fp: PathBuf = PathBuf::from(std::env::args().nth(1).unwrap());
+    let fp: PathBuf = PathBuf::from(
+        std::env::args()
+            .nth(1)
+            .unwrap_or(DEFAULT_PATH.into())
+    );
     let config = config::Config::new().unwrap();
     let db = database::DataBase::new(config).await.unwrap();
     loop {
