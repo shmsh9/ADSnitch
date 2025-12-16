@@ -58,15 +58,12 @@ async fn main() {
                         },
                         AuthEvent::KRBPREAUTHFAIL =>{
                             a = krb::KRBT::preauth_fail_from_evtx_record(r);
-    
                         }
                         AuthEvent::NTLMAUTH => {
                             a = ntlm::NTMLAuth::from_evtx_record(r);
-    
                         },
                         AuthEvent::AUTH => {
                             a = AuthEvent::from_evtx_record(r);
-    
                         },
                         AuthEvent::AUTHFAIL => {
                             a = AuthEvent::from_fail_evtx_record(r);
@@ -126,5 +123,6 @@ async fn main() {
                 Err(e) => eprintln!("{}", e),
             }
         }
+		std::thread::sleep(std::time::Duration::from_millis(1000));
     }
 }
