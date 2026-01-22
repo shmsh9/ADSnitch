@@ -101,7 +101,7 @@ async fn main() {
                                 surveillance_fail.insert(a.target_user_name.to_lowercase(), true);
                                 for address in config.send_list.clone().into_iter() {
                                     let email: Message = Message::builder()
-                                    .from("ADSnitch <ADSnitch@mmt-b.com>".parse().unwrap())
+                                    .from("ADSnitch <ADSnitch@walor.com>".parse().unwrap())
                                     .to(format!("<{}>", address).parse().unwrap())
                                     .subject(format!("ADSnitch failed user connection {}", a.target_user_name))
                                     .header(ContentType::TEXT_PLAIN)
